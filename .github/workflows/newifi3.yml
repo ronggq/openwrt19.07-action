@@ -2,14 +2,14 @@ name: newifi3 OpenWrt
 
 on:
   release:
-    types: [published, started]
+    types: [published]
   push:
     branches:
       - main
     paths:
       - '.config'
-  schedule:
-    - cron: 0 22 * * *
+  #schedule:
+  #    - cron: 0 22 * * *
   watch:
     types: [started]
 
@@ -23,7 +23,6 @@ env:
   SSH_ACTIONS: true
   UPLOAD_BIN_DIR: false
   UPLOAD_FIRMWARE: true
-  UPLOAD_COWTRANSFER: true
   TZ: Asia/Shanghai
 
 jobs:
@@ -47,7 +46,6 @@ jobs:
         sudo timedatectl set-timezone "$TZ"
         sudo mkdir -p /workdir
         sudo chown $USER:$GROUPS /workdir
-
     - name: Clone source code
       run: git clone --depth 1 $REPO_URL -b $REPO_BRANCH openwrt
       
@@ -65,7 +63,6 @@ jobs:
         cd openwrt
         ../$DIY_SH
         make defconfig
-
     #取消下方注释，可网页端ssh修改config文件，具体操作见action内部介绍
     #- name: SSH connection to Actions
     #  uses: P3TERX/debugger-action@master
@@ -78,7 +75,6 @@ jobs:
         make download -j8
         find dl -size -1024c -exec ls -l {} \;
         find dl -size -1024c -exec rm -f {} \;
-
     - name: Compile the firmware
       id: compile
       run: |
@@ -86,14 +82,13 @@ jobs:
         echo -e "$(nproc) thread compile"
         make -j$(nproc) || make -j1 V=s
         echo "::set-output name=status::success"
-
     - name: Upload bin directory
       uses: actions/upload-artifact@master
       if: steps.compile.outputs.status == 'success' && env.UPLOAD_BIN_DIR == 'true'
       with:
         name: OpenWrt_directory
         path: openwrt/bin
-        
+
     - name: Organize files
       id: organize
       if: env.UPLOAD_FIRMWARE == 'true' && !cancelled()
@@ -102,14 +97,12 @@ jobs:
         rm -rf packages
         echo "::set-env name=FIRMWARE::$(pwd)"
         echo "::set-output name=status::success"
-
     - name: Upload firmware directory
       uses: actions/upload-artifact@master
       if: steps.organize.outputs.status == 'success' && !cancelled()
       with:
         name: OpenWrt_firmware
         path: ${{ env.FIRMWARE }}
-
     - name: Upload firmware to cowtransfer
       if: steps.organize.outputs.status == 'success' && env.UPLOAD_COWTRANSFER == 'true' && !cancelled()
       run: |
