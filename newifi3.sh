@@ -18,4 +18,4 @@ git clone https://github.com/xiaorouji/openwrt-package.git xiaorouji     #常用
 git clone https://github.com/kenzok8/openwrt-packages.git                #常用软件集合包二
 git clone https://github.com/destan19/OpenAppFilter.git                  #APP过滤应用
 git clone https://github.com/jerrykuku/luci-theme-argon.git       #取消注释下载最新的argon主题
-
+git clone https://github.com/liuran001/openwrt-packages package          # 国内软件包集合 
