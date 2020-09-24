@@ -2,7 +2,7 @@ name: newifi3 OpenWrt
 
 on:
   release:
-    types: [published]
+    types: [published, started]
   push:
     branches:
       - main
